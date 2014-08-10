@@ -1,0 +1,37 @@
+{
+  "name": "freebox-revolution",
+  "version": "0.1.1",
+  "description": "Freebox Revolution API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Jeremy Cerri",
+    "email": "jeremy.cerri@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcerri/freebox-revolution.git"
+  },
+  "_id": "freebox-revolution@0.1.0",
+  "_shasum": "08574a0f428eda4e1bf17d0e0ccc0b414acf58bf",
+  "_from": "freebox-revolution@",
+  "_npmVersion": "1.4.8",
+  "_npmUser": {
+    "name": "jcerri",
+    "email": "jeremy.cerri@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "jcerri",
+      "email": "jeremy.cerri@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "08574a0f428eda4e1bf17d0e0ccc0b414acf58bf",
+    "tarball": "http://registry.npmjs.org/freebox-revolution/-/freebox-revolution-0.1.0.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/freebox-revolution/-/freebox-revolution-0.1.0.tgz"
+}
