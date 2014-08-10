@@ -9,15 +9,69 @@ function Freebox(options) {
     this.appId = options.appId || '';
     this.appToken = options.appToken || '';
     this.apiPath = '/api/v1';
+}
 
-    this.generateSession = function(callback) {
-        that.login(function(json) {
-            that.session(json.result.challenge, function(json) {
-                if (callback && 'function' === typeof(callback)) {
-                    callback();
-                }
-            })
-        });
+Freebox.prototype.generateSession = function(callback) {
+    var that = this;
+    this.login(function(json) {
+        that.session(json.result.challenge, function(json) {
+            if (callback && 'function' === typeof(callback)) {
+                callback();
+            }
+        })
+    });
+}
+
+Freebox.prototype.get = function(apiCall, handleResponse) {
+    req = http.request({
+        hostname: this.hostname,
+        port: 80,
+        path: this.apiPath + apiCall,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': data.length,
+            'X-Fbx-App-Auth': this.sessionToken
+        }
+    }, handleResponse);
+
+    req.on('error', function(e) {
+        console.log('[' + apiCall + '] problem with request: ' + e.message);
+    });
+
+    req.write(data);
+    req.end();
+}
+
+Freebox.prototype.delete = function(apiCall, handleResponse) {
+    req = http.request({
+        hostname: this.hostname,
+        port: 80,
+        path: this.apiPath + apiCall,
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': data.length,
+            'X-Fbx-App-Auth': this.sessionToken
+        }
+    }, handleResponse);
+
+    req.on('error', function(e) {
+        console.log('[' + apiCall + '] problem with request: ' + e.message);
+    });
+
+    req.write(data);
+    req.end();
+}
+
+/**
+ * @todo implement retry
+ */
+Freebox.prototype.checkSessionAndTry = function(callback, retry) {
+    if (undefined === this.sessionToken) {
+        this.generateSession(callback);
+    } else {
+        callback();
     }
 }
 
@@ -30,7 +84,6 @@ Freebox.prototype.login = function(callback) {
         res.on('end', function() {
             json = JSON.parse(data);
             if (callback && 'function' === typeof(callback)) {
-                // challenge : json.result.challenge
                 callback(json);
             }
         });
@@ -75,6 +128,29 @@ Freebox.prototype.session = function(challenge, callback) {
     req.end();
 }
 
+Freebox.prototype.downloads = function(callback) {
+    this.get('/downloads/', function(res) {
+        res.setEncoding('utf8');
+        res.on('data', function(chunk) {
+            json = JSON.parse(chunk);
+            if (true === json.success && callback && 'function' === typeof(callback)) {
+                callback(json);
+            }
+        });
+    });
+}
+
+Freebox.prototype.deleteDowload = function(id, callback) {
+    this.delete('/downloads/' + id, function(res) {
+        res.on('data', function(chunk) {
+            json = JSON.parse(chunk);
+            if (true === json.success && callback && 'function' === typeof(callback)) {
+                callback(json);
+            }
+        })
+    })
+}
+
 Freebox.prototype.addDownload = function(link, callback) {
     that = this;
 
@@ -101,7 +177,6 @@ Freebox.prototype.addDownload = function(link, callback) {
             res.setEncoding('utf8');
             res.on('data', function (chunk) {
                 json = JSON.parse(chunk);
-                // if session expired
                 if (false === json.success && 'auth_required' === json.error_code) {
                     that.generateSession(function() {
                         that.addDownload(link, callback);
